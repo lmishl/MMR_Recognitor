@@ -85,10 +85,6 @@ class Integrator:
     def getPrediction(self, i):
         return list[i]
 
-
-
-
-
 class Network:
     def __init__(self, imWidth, imHeight):
         self.imWidth = imWidth
@@ -106,11 +102,11 @@ class Network:
         pred = self.model.predict(image)
         return Prediction(pred)
 
-    def classCnt(self):
-        return self.model.o
+    # def classCnt(self):
+    #     return self.model.o
 
 
-class Statistic:
+class Evaluator:
     cnt = 0
     good = 0
     def __init__(self, classCnt):
@@ -126,25 +122,31 @@ class Statistic:
         if(winnerClass == cnt / 400):
             good += 1
 
-    def accuracy(self):
+    def getPositive(self):
+        return self.good
+
+    def getCnt(self):
+        return self.cnt
+
+    def getAccuracy(self):
         return good * 1.0 / cnt
 
-class Base:
-    @staticmethod
-    def getClass(maxClass):
-        text = ''
-        if maxClass == 0:
-            text = 'Vaz 21099'
-        if maxClass == 1:
-            text = 'Renault Logan'
-        if maxClass == 2:
-            text = 'Lada Priora'
-        if maxClass == 3:
-            text = 'Hyundai Solaris'
-        if maxClass == 4:
-            text = 'Nissan Sunny'
+    def output(self):
+        text = 'Images: ' + self.getCnt() + '\n' + 'Positive: ' + self.getPositive() + '\n' + 'Accuracy: ' + self.getAccuracy()
         return text
 
+
+class Base:
+    def __init__(self):
+        self.cars = []
+        self.cars.append('Vaz 21099')
+        self.cars.append('Renault Logan')
+        self.cars.append('Lada Priora')
+        self.cars.append('Hyundai Solaris')
+        self.cars.append('Nissan Sunny')
+
+    def getClass(self, maxClass):
+        return self.cars[maxClass]
 
 class Main(QMainWindow):
 
@@ -155,6 +157,8 @@ class Main(QMainWindow):
     # model2 = load_model('new_model_for_5.h5')
     simpleCroppedModel = Network(150, 150)
     simpleCroppedModel.load('new_model_for_5.h5')
+
+    base = Base()
 
     nets = []
     nets.append(simpleModel)
@@ -178,7 +182,7 @@ class Main(QMainWindow):
     def recognize(self):
         pred = self.predict(self.curname)
         maxClass = pred.argmax()
-        text = self.log.toPlainText() + '\n ' + self.curname + ' ' + Base.getClass(maxClass)
+        text = self.log.toPlainText() + '\n ' + self.curname + ' ' + self.base.getClass(maxClass)
         text += '\n ' + str(pred.output())
         self.log.setText(text)
 
