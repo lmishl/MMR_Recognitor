@@ -107,20 +107,20 @@ class Network:
 
 
 class Evaluator:
-    cnt = 0
-    good = 0
+
     def __init__(self, classCnt):
         self.rating = np.zeros(classCnt)
+        self.cnt = 0
+        self.good = 0
 
-    def add(self, param):
-        pred = (Prediction)(param)
-
-        cnt +=1
+    def add(self, pred):
         winnerClass = pred.argmax()
         self.rating[winnerClass] += 1
 
-        if(winnerClass == cnt / 400):
-            good += 1
+        if(winnerClass == (int)(self.cnt / 400)):
+            self.good += 1
+
+        self.cnt += 1
 
     def getPositive(self):
         return self.good
@@ -129,10 +129,10 @@ class Evaluator:
         return self.cnt
 
     def getAccuracy(self):
-        return good * 1.0 / cnt
+        return self.good * 1.0 / self.cnt
 
     def output(self):
-        text = 'Images: ' + self.getCnt() + '\n' + 'Positive: ' + self.getPositive() + '\n' + 'Accuracy: ' + self.getAccuracy()
+        text = 'Images: ' + str(self.getCnt()) + '\n' + 'Positive: ' + str(self.getPositive()) + '\n' + 'Accuracy: ' + str(self.getAccuracy())
         return text
 
 
@@ -172,7 +172,7 @@ class Main(QMainWindow):
         for net in self.nets:
             pred = net.predict(fname)
             integrator.add(pred)
-        print(integrator.list[0].getArray())
+        # print(integrator.list[0].getArray())
         avgPred = integrator.avg()
         # avgPred.normalize()
         # maxClass = avgPred.argmax()
@@ -264,10 +264,17 @@ class Main(QMainWindow):
 
     def showDialogDir(self):
         dirName = QFileDialog.getExistingDirectory(self, 'Open dir with samples', '/home', QFileDialog.ShowDirsOnly)
+        evaluator = Evaluator(5)
 
         if dirName:
             for fname in listdir(dirName):
-                self.predict(dirName + '/' + fname)
+                pred = self.predict(dirName + '/' + fname)
+                evaluator.add(pred)
+
+
+            text = 'Directory: ' + dirName + '\n'
+            text += evaluator.output()
+            self.log.setText(text)
             # QMessageBox.about(self, "My message box", self.stat.,'sss')
 
 
