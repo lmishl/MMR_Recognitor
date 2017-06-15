@@ -146,7 +146,7 @@ class Base:
         return text
 
 
-class Example(QMainWindow):
+class Main(QMainWindow):
 
     simpleModel = Network(150, 150)
     simpleModel.load('model_for_5.h5')
@@ -274,5 +274,5 @@ class Example(QMainWindow):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = Main()
     sys.exit(app.exec_())
